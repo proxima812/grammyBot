@@ -17,12 +17,12 @@ bot.command("start", ctx => {
 
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
-	ctx.reply("*Сообщение номер один*")
+	ctx.reply("*Сообщение номер один*", { parse_mode: "MarkdownV2" })
 })
 
 bot.callbackQuery("alcohol", async ctx => {
 	await ctx.answerCallbackQuery()
-	ctx.reply("~~Сообщение номер два~~")
+	ctx.reply("~~Сообщение номер два~~", { parse_mode: "MarkdownV2" })
 })
 
 export default webhookCallback(bot, "https")
