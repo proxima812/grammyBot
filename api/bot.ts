@@ -17,12 +17,14 @@ bot.command("start", ctx => {
 
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
-	ctx.reply("*Сообщение номер один*", { parse_mode: "MarkdownV2" })
+	const message =
+		"Анонимные Далбаебы\n\n[текст ссылки](https://t.me/)\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)"
+	ctx.reply(message, { parse_mode: "MarkdownV2" })
 })
 
 bot.callbackQuery("alcohol", async ctx => {
 	await ctx.answerCallbackQuery()
-	ctx.reply("~~Сообщение номер два~~", { parse_mode: "MarkdownV2" })
+	ctx.reply("Сообщение номер два", { parse_mode: "MarkdownV2" })
 })
 
 export default webhookCallback(bot, "https")
