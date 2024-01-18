@@ -10,4 +10,4 @@ bot.command("start", ctx => ctx.reply("Welcome! Up and running."))
 // Handle other messages.
 bot.on("message", ctx => ctx.reply("Got another message!"))
 
-export default webhookCallback(bot, "http")
+export default webhookCallback(bot, "https")
