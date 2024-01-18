@@ -16,10 +16,11 @@ bot.command("start", ctx => {
 })
 
 bot.callbackQuery("internet", async ctx => {
-  await ctx.answerCallbackQuery()
-	ctx.reply("[текст ссылки](https://t.me/) 1111", { parse_mode: "MarkdownV2" })
+	await ctx.answerCallbackQuery()
+	ctx.reply("*Hi\\!* _Welcome_ to [grammY](https://grammy.dev)\\.", {
+		parse_mode: "MarkdownV2",
+	})
 })
-
 
 bot.callbackQuery("alcohol", async ctx => {
 	await ctx.answerCallbackQuery()
