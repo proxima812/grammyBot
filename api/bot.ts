@@ -17,9 +17,10 @@ bot.command("start", ctx => {
 
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
-	const message =
-		"Анонимные Далбаебы\n\n[текст ссылки](https://t.me/)\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)"
-	ctx.reply(message, { parse_mode: "MarkdownV2" })
+	ctx.reply(
+		"Анонимные Далбаебы\n\n[текст ссылки](https://t.me/)\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)",
+		{ parse_mode: "MarkdownV2" },
+	)
 })
 
 bot.callbackQuery("alcohol", async ctx => {
