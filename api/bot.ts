@@ -18,7 +18,7 @@ bot.command("start", ctx => {
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
-		"Анонимные Далбаебы\n\n[текст ссылки](https://t.me/)\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)",
+		`Анонимные Далбаебы\n\n[текст ссылки](https://t.me/)\n\nКраткая информация:\n(привет)\n\nКонтакты:\n[https://t.me/](https://t.me/)`,
 		{ parse_mode: "MarkdownV2" },
 	)
 })
