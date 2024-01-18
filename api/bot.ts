@@ -24,7 +24,7 @@ bot.callbackQuery("internet", async ctx => {
 
 bot.callbackQuery("alcohol", async ctx => {
 	await ctx.answerCallbackQuery()
-	ctx.reply("Сообщение номер два", { parse_mode: "MarkdownV2" })
+	ctx.reply("[текст ссылки](https://t.me/)", { parse_mode: "MarkdownV2" })
 })
 
 export default webhookCallback(bot, "https")
