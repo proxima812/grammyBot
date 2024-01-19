@@ -19,6 +19,15 @@ bot.on("message:new_chat_members", ctx => {
 	ctx.reply("Приветствуем нового участника!")
 })
 
+bot.on("message:left_chat_member", ctx => {
+	ctx.reply("Участник покинул группу.")
+})
+
+bot.on("message", ctx => {
+	if (!ctx.message.text || ctx.message.text.startsWith("/")) return
+	ctx.reply(`Сообщение получено: ${ctx.message.text}`)
+})
+
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
