@@ -15,10 +15,14 @@ bot.command("start", ctx => {
 	})
 })
 
+bot.on("message:new_chat_members", ctx => {
+	ctx.reply("Приветствуем нового участника!")
+})
+
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
-		"[текст ссылки](https://t.me/)\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)",
+		"Анонимные Далбаебы\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)",
 		{
 			parse_mode: "Markdown",
 		},
