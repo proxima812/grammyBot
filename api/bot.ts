@@ -23,10 +23,9 @@ bot.callbackQuery("internet", async ctx => {
 	ctx.reply(
 		`
     *Анонимные Далбаебы*
-    Краткая информация:
-    (привет)
-    Контакты:
-    [https://t.me/](https://t.me/)
+Краткая информация:
+(привет)
+Контакты: [https://t.me/](https://t.me/)
     `,
 		{
 			parse_mode: "Markdown",
