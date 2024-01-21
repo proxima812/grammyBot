@@ -7,8 +7,8 @@ const bot = new Bot(token)
 
 bot.command("start", ctx => {
 	const keyboard = new InlineKeyboard()
-		.text("Интернет", "internet")
-		.text("Алкоголь", "alcohol")
+		.text("Вещества", "life")
+		.text("Родственикам", "moms")
 
 	ctx.reply("Более 60 анонимных 12-ти шаговых сообществ.", {
 		reply_markup: keyboard,
@@ -18,14 +18,20 @@ bot.command("start", ctx => {
 
 // \n
 
-bot.callbackQuery("internet", async ctx => {
+bot.callbackQuery("life", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
 		`
-    *Анонимные Далбаебы*
-Краткая информация:
-(привет)
-Контакты: [https://t.me/](https://t.me/)
+*Анонимные Алкоголики* (10 июня 1935 года)
+
+*Анонимные Наркоманы* (5 октября 1953 года)
+
+*Анонимные Химические Зависимые* (первая группа 1997 год)
+
+*Анонимные Таблеточники* (основана в 1972 году)
+**(Люди ищущие выздоровление от зависимости от рецептурных лекарств)**
+
+*Анонимные Кокаинисты* (в 1982 году)
     `,
 		{
 			parse_mode: "Markdown",
@@ -33,7 +39,7 @@ bot.callbackQuery("internet", async ctx => {
 	)
 })
 
-bot.callbackQuery("alcohol", async ctx => {
+bot.callbackQuery("moms", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply("[текст ссылки](https://t.me/)", { parse_mode: "MarkdownV2" })
 })
