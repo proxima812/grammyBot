@@ -10,28 +10,24 @@ bot.command("start", ctx => {
 		.text("Интернет", "internet")
 		.text("Алкоголь", "alcohol")
 
-	ctx.reply("Выберите опцию:", {
+	ctx.reply("Более 60 анонимных 12-ти шаговых сообществ.", {
 		reply_markup: keyboard,
+		parse_mode: "Markdown",
 	})
 })
 
-bot.on("message:new_chat_members", ctx => {
-	ctx.reply("Приветствуем нового участника!")
-})
-
-bot.on("message:left_chat_member", ctx => {
-	ctx.reply("Участник покинул группу.")
-})
-
-bot.on("message", ctx => {
-	if (!ctx.message.text || ctx.message.text.startsWith("/")) return
-	ctx.reply(`Сообщение получено: ${ctx.message.text}`)
-})
+// \n
 
 bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
-		"Анонимные Далбаебы\n\nКраткая информация:\n()\n\nКонтакты:\n[https://t.me/](https://t.me/)",
+		`
+    Анонимные Далбаебы
+    Краткая информация:
+    (привет)
+    Контакты:
+    [https://t.me/](https://t.me/)
+    `,
 		{
 			parse_mode: "Markdown",
 		},
