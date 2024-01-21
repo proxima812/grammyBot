@@ -22,7 +22,7 @@ bot.callbackQuery("internet", async ctx => {
 	await ctx.answerCallbackQuery()
 	ctx.reply(
 		`
-    Анонимные Далбаебы
+    *Анонимные Далбаебы*
     Краткая информация:
     (привет)
     Контакты:
