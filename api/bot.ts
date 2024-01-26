@@ -115,7 +115,8 @@ function buildMainMenuKeyboard() {
 }
 
 const mainMsg = `
-Более 60 анонимных *12-ти шаговых* сообществ. [*Ссылки и контакты этих сообществ*](https://t.me/all12_contacts)
+Более 60 анонимных *12-ти шаговых* сообществ.
+[Ссылки и контакты этих сообществ](https://t.me/all12_contacts)
 `
 
 bot.command("start", ctx => {
