@@ -115,13 +115,14 @@ function buildMainMenuKeyboard() {
 }
 
 const mainMsg = `
-Более 60 анонимных 12-ти шаговых сообществ.
+Более 60 анонимных *12-ти шаговых* сообществ. [*Ссылки и контакты этих сообществ*](https://t.me/all12_contacts)
 `
 
 bot.command("start", ctx => {
 	const keyboard = buildMainMenuKeyboard()
 	ctx.reply(mainMsg, {
 		reply_markup: keyboard,
+    parse_mode: 'Markdown'
 	})
 })
 
@@ -130,6 +131,7 @@ bot.callbackQuery("back_main", async ctx => {
 	const keyboard = buildMainMenuKeyboard()
 	ctx.editMessageText(mainMsg, {
 		reply_markup: keyboard,
+    parse_mode: 'Markdown'
 	})
 })
 
