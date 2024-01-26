@@ -5,9 +5,8 @@ if (!token) throw new Error("TOKEN is unset")
 
 const bot = new Bot(token)
 
-
-bot.command("start", ctx => {
-	const keyboard = new InlineKeyboard()
+function buildMainMenuKeyboard() {
+  return new InlineKeyboard()
 		.text("🍾 Вещества", "life")
 		.row()
 		.text("🫂 Родственикам", "moms")
@@ -26,24 +25,31 @@ bot.command("start", ctx => {
 		.text("🌅 Творчество", "art")
 		.row()
 		.text("🎆 Мечтатели", "dream")
+}
 
+bot.command("start", ctx => {
+	const keyboard = buildMainMenuKeyboard()
 	ctx.reply("Более 60 анонимных 12-ти шаговых сообществ.", {
 		reply_markup: keyboard,
-		parse_mode: "Markdown",
-  })
+	})
 })
 
 
 // \n
 
 bot.callbackQuery("life", async ctx => {
-	await ctx.answerCallbackQuery() // Ответить на callback запрос
+	await ctx.answerCallbackQuery()
+	const backKeyboard = new InlineKeyboard().text("⬅️ Назад", "back_main")
+	ctx.editMessageText("Детальная информация по 'Веществам'...", {
+		reply_markup: backKeyboard,
+	})
+})
 
-	// Изменяем исходное сообщение
-	await ctx.editMessageText("Детальная информация по выбранной теме...", {
-		parse_mode: "Markdown",
-		// Можно также обновить клавиатуру, если это необходимо
-		// reply_markup: newKeyboard
+bot.callbackQuery("back_main", async ctx => {
+	await ctx.answerCallbackQuery()
+	const keyboard = buildMainMenuKeyboard()
+	ctx.editMessageText("Более 60 анонимных 12-ти шаговых сообществ.", {
+		reply_markup: keyboard,
 	})
 })
 
