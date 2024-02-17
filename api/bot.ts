@@ -137,37 +137,35 @@ bot.command("start", ctx => {
 
 
 
-bot.on("message:text", async ctx => {
-	const messageText = ctx.message.text
-	const fromUserId = ctx.message.from.id
+// Обработчик для любого текстового сообщения
+bot.on('message:text', async ctx => {
+  const messageText = ctx.message.text;
+  const fromUserId = ctx.message.from.id;
 
-	// Создаем inline клавиатуру с кнопками
-	const inlineKeyboard = new InlineKeyboard()
-		.text("Да, принять", `accept_${fromUserId}`)
-		.text("Нет, отказ", `reject_${fromUserId}`)
+  // Создаем inline клавиатуру с кнопками
+  const inlineKeyboard = new InlineKeyboard()
+    .text('Да, принять', `accept_${fromUserId}`)
+    .text('Нет, отказ', `reject_${fromUserId}`);
 
-	// Пересылаем сообщение администратору с кнопками
-	await ctx.api.sendMessage(
-		adminId,
-		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
-		{
-			reply_markup: inlineKeyboard,
-		},
-	)
-})
+  // Пересылаем сообщение администратору с кнопками
+  await ctx.api.sendMessage(adminId, `Сообщение от пользователя ${fromUserId}: ${messageText}`, {
+    reply_markup: inlineKeyboard,
+  });
+});
 
 // Обработчик нажатий на кнопки
 bot.callbackQuery(/^accept_|reject_/, async ctx => {
-	// Извлекаем действие и ID пользователя из данных callback_query
-	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
-	const userId = ctx.callbackQuery.data.split("_")[1]
+  const action = ctx.callbackQuery.data.startsWith('accept_') ? 'принято' : 'отказано';
+  const userId = ctx.callbackQuery.data.split('_')[1];
 
-	// Отправляем подтверждение администратору о выбранном действии
-	await ctx.answerCallbackQuery(`Вы ${action} запрос пользователя ${userId}.`)
+  // Отправляем подтверждение администратору о выбранном действии
+  await ctx.answerCallbackQuery(`Вы ${action} запрос пользователя ${userId}.`);
 
-	// Также можно отправить уведомление пользователю об выборе администратора, если это необходимо
-	await ctx.api.sendMessage(userId, `Ваш запрос был ${action} администратором.`);
-})
+  // Отправляем уведомление пользователю о решении администратора
+  const responseMessage = action === 'принято' ? 'Ваш запрос был принят администратором.' : 'Ваш запрос был отклонен администратором.';
+  await ctx.api.sendMessage(userId, responseMessage);
+});
+
 
 async function fetchData() {
 	const { data, error } = await supabase.from("tgBotMsg").select("message") // Извлекаем только колонку message
