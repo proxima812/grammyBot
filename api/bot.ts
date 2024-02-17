@@ -6,6 +6,8 @@ const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
+const adminId = 5522146122
+
 const token = process.env.TOKEN
 if (!token) throw new Error("TOKEN is unset")
 
@@ -133,6 +135,40 @@ bot.command("start", ctx => {
 	})
 })
 
+
+
+bot.on("message:text", async ctx => {
+	const messageText = ctx.message.text
+	const fromUserId = ctx.message.from.id
+
+	// Создаем inline клавиатуру с кнопками
+	const inlineKeyboard = new InlineKeyboard()
+		.text("Да, принять", `accept_${fromUserId}`)
+		.text("Нет, отказ", `reject_${fromUserId}`)
+
+	// Пересылаем сообщение администратору с кнопками
+	await ctx.api.sendMessage(
+		adminId,
+		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
+		{
+			reply_markup: inlineKeyboard,
+		},
+	)
+})
+
+// Обработчик нажатий на кнопки
+bot.callbackQuery(/^accept_|reject_/, async ctx => {
+	// Извлекаем действие и ID пользователя из данных callback_query
+	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
+	const userId = ctx.callbackQuery.data.split("_")[1]
+
+	// Отправляем подтверждение администратору о выбранном действии
+	await ctx.answerCallbackQuery(`Вы ${action} запрос пользователя ${userId}.`)
+
+	// Также можно отправить уведомление пользователю об выборе администратора, если это необходимо
+	await ctx.api.sendMessage(userId, `Ваш запрос был ${action} администратором.`);
+})
+
 async function fetchData() {
 	const { data, error } = await supabase.from("tgBotMsg").select("message") // Извлекаем только колонку message
 
@@ -152,10 +188,8 @@ bot.command("sb", async ctx => {
 			await ctx.reply("В базе данных нет сообщений.")
 		} else {
 			// Формируем строку из сообщений для отправки пользователю
-			const messages = data
-				.map((item, index) => `${index + 1}: ${item.message}`)
-				.join("\n")
-			await ctx.reply(`Данные из Supabase:\n${messages}`, {parse_mode: 'HTML'})
+			const messages = data.map(item => `${item.message}`).join("\n")
+			await ctx.reply(`${messages}`, { parse_mode: "HTML" })
 		}
 	} catch (error) {
 		console.error("Ошибка при получении данных:", error)
