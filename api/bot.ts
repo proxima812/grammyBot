@@ -1,3 +1,4 @@
+require("dotenv").config()
 import { Bot, InlineKeyboard, webhookCallback } from "grammy"
 const { createClient } = require("@supabase/supabase-js")
 
@@ -128,11 +129,9 @@ bot.command("start", ctx => {
 	const keyboard = buildMainMenuKeyboard()
 	ctx.reply(mainMsg, {
 		reply_markup: keyboard,
-    parse_mode: 'Markdown'
+		parse_mode: "Markdown",
 	})
 })
-
-
 
 async function fetchData() {
 	const { data, error } = await supabase.from("tgBotMsg").select("*")
@@ -155,14 +154,12 @@ bot.command("sb", async ctx => {
 	}
 })
 
-
-
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
 	const keyboard = buildMainMenuKeyboard()
 	ctx.editMessageText(mainMsg, {
 		reply_markup: keyboard,
-    parse_mode: 'Markdown'
+		parse_mode: "Markdown",
 	})
 })
 

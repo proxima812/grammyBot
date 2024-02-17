@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.6",
+    "dotenv": "^16.4.4",
     "grammy": "^1.20.3"
   }
 }
