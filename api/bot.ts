@@ -172,6 +172,9 @@ async function saveMessageToDb(messageText) {
 	return data
 }
 
+
+
+
 // Обновленный обработчик нажатий на кнопки
 bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
@@ -184,7 +187,11 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	if (action === "принято") {
 		try {
 			// Сохраняем сообщение в базу данных
-			await saveMessageToDb(messageText)
+      // await saveMessageToDb(messageText)
+      
+      // Пересылаем сообщение в группу 
+      await ctx.forwardMessage(groupId)
+
 			// Отправляем сообщение в группу
 			await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`)
 
