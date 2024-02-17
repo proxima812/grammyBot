@@ -155,7 +155,7 @@ bot.command("sb", async ctx => {
 			const messages = data
 				.map((item, index) => `${index + 1}: ${item.message}`)
 				.join("\n")
-			await ctx.reply(`Данные из Supabase:\n${messages}`)
+			await ctx.reply(`Данные из Supabase:\n${messages}`, {parse_mode: 'HTML'})
 		}
 	} catch (error) {
 		console.error("Ошибка при получении данных:", error)
