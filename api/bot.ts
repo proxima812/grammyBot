@@ -1,4 +1,9 @@
 import { Bot, InlineKeyboard, webhookCallback } from "grammy"
+const { createClient } = require("@supabase/supabase-js")
+
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 const token = process.env.TOKEN
 if (!token) throw new Error("TOKEN is unset")
@@ -127,6 +132,31 @@ bot.command("start", ctx => {
 	})
 })
 
+
+
+async function fetchData() {
+	const { data, error } = await supabase.from("tgBotMsg").select("*")
+
+	if (error) {
+		console.error("Ошибка при запросе данных:", error)
+		return
+	}
+
+	return data
+}
+
+bot.command("sb", async ctx => {
+	try {
+		const data = await fetchData()
+		await ctx.reply(`Данные из Supabase: ${JSON.stringify(data)}`)
+	} catch (error) {
+		console.error("Ошибка при получении данных:", error)
+		await ctx.reply("Произошла ошибка при получении данных.")
+	}
+})
+
+
+
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
 	const keyboard = buildMainMenuKeyboard()
@@ -154,7 +184,5 @@ bot.on("callback_query", async ctx => {
 		await ctx.reply("Категория не найдена.")
 	}
 })
-
-
 
 export default webhookCallback(bot, "https")
