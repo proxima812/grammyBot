@@ -174,31 +174,37 @@ async function saveMessageToDb(messageText) {
 
 // Обновленный обработчик нажатий на кнопки
 bot.callbackQuery(/^accept_|reject_/, async ctx => {
-  const action = ctx.callbackQuery.data.startsWith('accept_') ? 'принято' : 'отказано';
-  const userId = ctx.callbackQuery.data.split('_')[1];
-  const messageText = ctx.callbackQuery.message.text.split(':').slice(1).join(':').trim(); // Извлекаем текст сообщения
+	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
+	const userId = ctx.callbackQuery.data.split("_")[1]
+	const messageText = ctx.callbackQuery.message.text.split(":").slice(1).join(":").trim() // Извлекаем текст сообщения
 
-  if (action === 'принято') {
-    try {
-      // Сохраняем сообщение в базу данных
-      await saveMessageToDb(messageText);
+	const messageId = ctx.callbackQuery.message.message_id // ID сообщения, которое нужно удалить
+	const chatId = ctx.callbackQuery.message.chat.id // ID чата, из которого нужно удалить сообщение
 
-      // Отправляем сообщение в группу
-      await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`);
+	if (action === "принято") {
+		try {
+			// Сохраняем сообщение в базу данных
+			await saveMessageToDb(messageText)
+			// Отправляем сообщение в группу
+			await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`)
 
-      // Отправляем уведомление пользователю и администратору
-      await ctx.answerCallbackQuery('Сообщение принято и сохранено в базе данных.');
-      await ctx.api.sendMessage(userId, 'Ваше сообщение было принято и отправлено в группу.');
-    } catch (error) {
-      console.error('Ошибка:', error);
-      await ctx.answerCallbackQuery('Произошла ошибка при обработке вашего запроса.');
-    }
-  } else {
-    // Для отказа, отправляем уведомление пользователю
-    await ctx.answerCallbackQuery('Вы отклонили запрос пользователя.');
-    await ctx.api.sendMessage(userId, 'Ваш запрос был отклонен администратором.');
-  }
-});
+			// Отправляем уведомление пользователю и администратору
+			await ctx.answerCallbackQuery("Сообщение принято и сохранено в базе данных.")
+			await ctx.api.sendMessage(
+				userId,
+				"Ваше сообщение было принято и отправлено в группу.",
+      )
+      await ctx.api.deleteMessage(chatId, messageId)
+		} catch (error) {
+			console.error("Ошибка:", error)
+			await ctx.answerCallbackQuery("Произошла ошибка при обработке вашего запроса.")
+		}
+	} else {
+		// Для отказа, отправляем уведомление пользователю
+		await ctx.answerCallbackQuery("Вы отклонили запрос пользователя.")
+		await ctx.api.sendMessage(userId, "Ваш запрос был отклонен администратором.")
+	}
+})
 
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
