@@ -134,11 +134,11 @@ bot.command("start", ctx => {
 })
 
 async function fetchData() {
-	const { data, error } = await supabase.from("tgBotMsg").select("*")
+	const { data, error } = await supabase.from("tgBotMsg").select("message") // Извлекаем только колонку message
 
 	if (error) {
 		console.error("Ошибка при запросе данных:", error)
-		return
+		throw error // Передаем ошибку дальше, чтобы ее можно было обработать в блоке catch
 	}
 
 	return data
@@ -147,7 +147,16 @@ async function fetchData() {
 bot.command("sb", async ctx => {
 	try {
 		const data = await fetchData()
-		await ctx.reply(`Данные из Supabase: ${JSON.stringify(data)}`)
+		if (data.length === 0) {
+			// Отправляем сообщение, если в таблице нет данных
+			await ctx.reply("В базе данных нет сообщений.")
+		} else {
+			// Формируем строку из сообщений для отправки пользователю
+			const messages = data
+				.map((item, index) => `${index + 1}: ${item.message}`)
+				.join("\n")
+			await ctx.reply(`Данные из Supabase:\n${messages}`)
+		}
 	} catch (error) {
 		console.error("Ошибка при получении данных:", error)
 		await ctx.reply("Произошла ошибка при получении данных.")
