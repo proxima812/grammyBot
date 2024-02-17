@@ -138,6 +138,27 @@ bot.command("start", ctx => {
 })
 
 // Обработчик для любого текстового сообщения
+// bot.on("message:text", async ctx => {
+// 	const messageText = ctx.message.text
+// 	const fromUserId = ctx.message.from.id
+
+// 	// Создаем inline клавиатуру с кнопками
+// 	const inlineKeyboard = new InlineKeyboard()
+// 		.text("Да, принять", `accept_${fromUserId}`)
+// 		.text("Нет, отказ", `reject_${fromUserId}`)
+
+// 	// Пересылаем сообщение администратору с кнопками
+// 	await ctx.api.sendMessage(
+// 		adminId,
+// 		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
+// 		{
+// 			reply_markup: inlineKeyboard,
+// 		},
+// 	)
+// })
+
+
+
 bot.on("message:text", async ctx => {
 	const messageText = ctx.message.text
 	const fromUserId = ctx.message.from.id
@@ -145,17 +166,19 @@ bot.on("message:text", async ctx => {
 	// Создаем inline клавиатуру с кнопками
 	const inlineKeyboard = new InlineKeyboard()
 		.text("Да, принять", `accept_${fromUserId}`)
-		.text("Нет, отказ", `reject_${fromUserId}`)
+		.row() // Добавляет разделительную линию между кнопками
+		.text("Нет, отказать", `reject_${fromUserId}`)
 
 	// Пересылаем сообщение администратору с кнопками
 	await ctx.api.sendMessage(
 		adminId,
-		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
+		`Сообщение от пользователя ${fromUserId}: "${messageText}"`,
 		{
 			reply_markup: inlineKeyboard,
 		},
 	)
 })
+
 
 // Функция для сохранения сообщения в базу данных
 async function saveMessageToDb(messageText) {
@@ -173,8 +196,6 @@ async function saveMessageToDb(messageText) {
 }
 
 
-
-
 // Обновленный обработчик нажатий на кнопки
 bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
@@ -188,9 +209,6 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 		try {
 			// Сохраняем сообщение в базу данных
       // await saveMessageToDb(messageText)
-      
-      // Пересылаем сообщение в группу 
-      await ctx.forwardMessage(groupId)
 
 			// Отправляем сообщение в группу
 			await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`)
