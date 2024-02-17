@@ -6,7 +6,9 @@ const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
+// Настройка
 const adminId = 5522146122
+const groupId = -1002037839412
 
 const token = process.env.TOKEN
 if (!token) throw new Error("TOKEN is unset")
@@ -135,65 +137,68 @@ bot.command("start", ctx => {
 	})
 })
 
-
-
 // Обработчик для любого текстового сообщения
-bot.on('message:text', async ctx => {
-  const messageText = ctx.message.text;
-  const fromUserId = ctx.message.from.id;
+bot.on("message:text", async ctx => {
+	const messageText = ctx.message.text
+	const fromUserId = ctx.message.from.id
 
-  // Создаем inline клавиатуру с кнопками
-  const inlineKeyboard = new InlineKeyboard()
-    .text('Да, принять', `accept_${fromUserId}`)
-    .text('Нет, отказ', `reject_${fromUserId}`);
+	// Создаем inline клавиатуру с кнопками
+	const inlineKeyboard = new InlineKeyboard()
+		.text("Да, принять", `accept_${fromUserId}`)
+		.text("Нет, отказ", `reject_${fromUserId}`)
 
-  // Пересылаем сообщение администратору с кнопками
-  await ctx.api.sendMessage(adminId, `Сообщение от пользователя ${fromUserId}: ${messageText}`, {
-    reply_markup: inlineKeyboard,
-  });
-});
+	// Пересылаем сообщение администратору с кнопками
+	await ctx.api.sendMessage(
+		adminId,
+		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
+		{
+			reply_markup: inlineKeyboard,
+		},
+	)
+})
 
-// Обработчик нажатий на кнопки
-bot.callbackQuery(/^accept_|reject_/, async ctx => {
-  const action = ctx.callbackQuery.data.startsWith('accept_') ? 'принято' : 'отказано';
-  const userId = ctx.callbackQuery.data.split('_')[1];
-
-  // Отправляем подтверждение администратору о выбранном действии
-  await ctx.answerCallbackQuery(`Вы ${action} запрос пользователя ${userId}.`);
-
-  // Отправляем уведомление пользователю о решении администратора
-  const responseMessage = action === 'принято' ? 'Ваш запрос был принят администратором.' : 'Ваш запрос был отклонен администратором.';
-  await ctx.api.sendMessage(userId, responseMessage);
-});
-
-
-async function fetchData() {
-	const { data, error } = await supabase.from("tgBotMsg").select("message") // Извлекаем только колонку message
+// Функция для сохранения сообщения в базу данных
+async function saveMessageToDb(messageText) {
+	// Здесь должен быть ваш код для сохранения сообщения в базе данных
+	// Например, для Supabase это может выглядеть так:
+	const { data, error } = await supabase
+		.from("tgBotMsg")
+		.insert([{ message: messageText }])
 
 	if (error) {
-		console.error("Ошибка при запросе данных:", error)
-		throw error // Передаем ошибку дальше, чтобы ее можно было обработать в блоке catch
+		throw new Error("Ошибка при сохранении сообщения в базу данных")
 	}
 
 	return data
 }
 
-bot.command("sb", async ctx => {
-	try {
-		const data = await fetchData()
-		if (data.length === 0) {
-			// Отправляем сообщение, если в таблице нет данных
-			await ctx.reply("В базе данных нет сообщений.")
-		} else {
-			// Формируем строку из сообщений для отправки пользователю
-			const messages = data.map(item => `${item.message}`).join("\n")
-			await ctx.reply(`${messages}`, { parse_mode: "HTML" })
-		}
-	} catch (error) {
-		console.error("Ошибка при получении данных:", error)
-		await ctx.reply("Произошла ошибка при получении данных.")
-	}
-})
+// Обновленный обработчик нажатий на кнопки
+bot.callbackQuery(/^accept_|reject_/, async ctx => {
+  const action = ctx.callbackQuery.data.startsWith('accept_') ? 'принято' : 'отказано';
+  const userId = ctx.callbackQuery.data.split('_')[1];
+  const messageText = ctx.callbackQuery.message.text.split(':').slice(1).join(':').trim(); // Извлекаем текст сообщения
+
+  if (action === 'принято') {
+    try {
+      // Сохраняем сообщение в базу данных
+      await saveMessageToDb(messageText);
+
+      // Отправляем сообщение в группу
+      await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`);
+
+      // Отправляем уведомление пользователю и администратору
+      await ctx.answerCallbackQuery('Сообщение принято и сохранено в базе данных.');
+      await ctx.api.sendMessage(userId, 'Ваше сообщение было принято и отправлено в группу.');
+    } catch (error) {
+      console.error('Ошибка:', error);
+      await ctx.answerCallbackQuery('Произошла ошибка при обработке вашего запроса.');
+    }
+  } else {
+    // Для отказа, отправляем уведомление пользователю
+    await ctx.answerCallbackQuery('Вы отклонили запрос пользователя.');
+    await ctx.api.sendMessage(userId, 'Ваш запрос был отклонен администратором.');
+  }
+});
 
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
