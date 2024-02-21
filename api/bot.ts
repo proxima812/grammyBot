@@ -129,6 +129,7 @@ const mainMsg = `
 [Ссылки и контакты этих сообществ](https://t.me/all12_contacts)
 `
 
+// /start
 bot.command("start", ctx => {
 	const keyboard = buildMainMenuKeyboard()
 	ctx.reply(mainMsg, {
@@ -137,28 +138,74 @@ bot.command("start", ctx => {
 	})
 })
 
+// Функция для создания кнопок месяцев
+function createMonthButtons() {
+  const months = [
+    "yanvar", "fevral", "mart", "aprel", "may", "iyun",
+    "iyul", "avgust", "sentyabr", "oktyabr", "noyabr", "dekabr"
+  ];
+  let keyboard = new InlineKeyboard();
+  months.forEach(month => {
+    keyboard = keyboard.text(month, `month:${month}`).row();
+  });
+  return keyboard;
+}
+
+// Функция для создания кнопок дней в зависимости от месяца
+function createDayButtons(month) {
+  // Простая логика для определения количества дней в месяце
+  const daysInMonth = {
+    "yanvar": 31, "fevral": 28, "mart": 31, "aprel": 30, "may": 31, "iyun": 30,
+    "iyul": 31, "avgust": 31, "sentyabr": 30, "oktyabr": 31, "noyabr": 30, "dekabr": 31
+  };
+  let keyboard = new InlineKeyboard();
+  const days = daysInMonth[month];
+  for (let day = 1; day <= days; day++) {
+    keyboard = keyboard.text(day.toString(), `day:${month}:${day}`).row();
+  }
+  return keyboard;
+}
+
+// Команда старта
+bot.command('ejik', (ctx) => {
+  const keyboard = createMonthButtons();
+  ctx.reply('Выберите месяц:', { reply_markup: keyboard });
+});
+
+// Обработка выбора месяца
+bot.callbackQuery(/^month:(.+)$/, (ctx) => {
+  const month = ctx.match[1];
+  const keyboard = createDayButtons(month);
+  ctx.editMessageText(`Выберите день в ${month}:`, { reply_markup: keyboard });
+});
+
+// Обработка выбора дня
+bot.callbackQuery(/^day:(.+):(\d+)$/, async (ctx) => {
+  const [, month, day] = ctx.match;
+  // Загрузка данных из файла/хранилища
+  // Предполагается, что вы загрузите данные здесь
+  const data = {
+    "dekabr": {
+      "24": {
+        "title": "24 декабря",
+        "description": "Размышления АА на сегодня - 24 декабря",
+        "id": "359",
+        "content": "## «РАЗУМНАЯ И СЧАСТЛИВАЯ ЖИЗНЬ НА ПОЛЬЗУ ЛЮДЯМ»\n\n**Мы пришли к убеждению, что Он велит нам в мыслях быть с Ним рядом, в\nоблаках, но обеими ногами прочно стоять на земле. Там, внизу, все наши друзья,\nи там наша основная работа. Таковы реальности нашей жизни. Мы считаем, что\nинтенсивная духовная жизнь вполне совместима с разумной и счастливой жизнью, в\nкоторой мы стремимся приносить пользу другим.**\n\n**_Анонимные Алкоголики, с. 126  \nAlcoholics Anonymous, p. 130_**\n\nНикакие на свете молитвы и медитации не помогут мне до тех пор, пока они не\nбудут подтверждены моими действиями. Применяя принципы AA на практике, я\nощущаю заботу, которую Бог проявляет обо мне во всех сферах моей жизни. Бог\nвходит в мой мир тогда, когда я отхожу в сторону и позволяю Ему войти."
+      },
+    }
+  }; // Замените это на загрузку данных
+  const selectedData = data[month] && data[month][day];
+  if (!selectedData) {
+    await ctx.answerCallbackQuery('Данные за этот день отсутствуют.');
+    return;
+  }
+
+  const message = `${selectedData.title}\n\n${selectedData.description}\n\n${selectedData.content}`;
+  await ctx.answerCallbackQuery();
+  await ctx.editMessageText(message);
+});
+
 // Обработчик для любого текстового сообщения
-// bot.on("message:text", async ctx => {
-// 	const messageText = ctx.message.text
-// 	const fromUserId = ctx.message.from.id
-
-// 	// Создаем inline клавиатуру с кнопками
-// 	const inlineKeyboard = new InlineKeyboard()
-// 		.text("Да, принять", `accept_${fromUserId}`)
-// 		.text("Нет, отказ", `reject_${fromUserId}`)
-
-// 	// Пересылаем сообщение администратору с кнопками
-// 	await ctx.api.sendMessage(
-// 		adminId,
-// 		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
-// 		{
-// 			reply_markup: inlineKeyboard,
-// 		},
-// 	)
-// })
-
-
-
 bot.on("message:text", async ctx => {
 	const messageText = ctx.message.text
 	const fromUserId = ctx.message.from.id
@@ -166,19 +213,17 @@ bot.on("message:text", async ctx => {
 	// Создаем inline клавиатуру с кнопками
 	const inlineKeyboard = new InlineKeyboard()
 		.text("Да, принять", `accept_${fromUserId}`)
-		.row() // Добавляет разделительную линию между кнопками
-		.text("Нет, отказать", `reject_${fromUserId}`)
+		.text("Нет, отказ", `reject_${fromUserId}`)
 
 	// Пересылаем сообщение администратору с кнопками
 	await ctx.api.sendMessage(
 		adminId,
-		`Сообщение от пользователя ${fromUserId}: "${messageText}"`,
+		`Сообщение от пользователя ${fromUserId}: ${messageText}`,
 		{
 			reply_markup: inlineKeyboard,
 		},
 	)
 })
-
 
 // Функция для сохранения сообщения в базу данных
 async function saveMessageToDb(messageText) {
@@ -195,7 +240,6 @@ async function saveMessageToDb(messageText) {
 	return data
 }
 
-
 // Обновленный обработчик нажатий на кнопки
 bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	const action = ctx.callbackQuery.data.startsWith("accept_") ? "принято" : "отказано"
@@ -208,7 +252,7 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	if (action === "принято") {
 		try {
 			// Сохраняем сообщение в базу данных
-      // await saveMessageToDb(messageText)
+			await saveMessageToDb(messageText)
 
 			// Отправляем сообщение в группу
 			await ctx.api.sendMessage(groupId, `Новое сообщение: ${messageText}`)
@@ -218,8 +262,8 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 			await ctx.api.sendMessage(
 				userId,
 				"Ваше сообщение было принято и отправлено в группу.",
-      )
-      await ctx.api.deleteMessage(chatId, messageId)
+			)
+			await ctx.api.deleteMessage(chatId, messageId)
 		} catch (error) {
 			console.error("Ошибка:", error)
 			await ctx.answerCallbackQuery("Произошла ошибка при обработке вашего запроса.")
@@ -231,6 +275,8 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 	}
 })
 
+
+
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
 	const keyboard = buildMainMenuKeyboard()
@@ -239,7 +285,6 @@ bot.callbackQuery("back_main", async ctx => {
 		parse_mode: "Markdown",
 	})
 })
-
 bot.on("callback_query", async ctx => {
 	const callbackData = ctx.callbackQuery.data
 	await ctx.answerCallbackQuery() // Всегда отвечайте на callback-запросы
@@ -258,5 +303,4 @@ bot.on("callback_query", async ctx => {
 		await ctx.reply("Категория не найдена.")
 	}
 })
-
 export default webhookCallback(bot, "https")
