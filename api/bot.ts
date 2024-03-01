@@ -133,7 +133,7 @@ const mainMsg = `
 bot.command("suka", async ctx => {
 	try {
 		// Путь к файлу MP3 в корне проекта
-		const filePath = path.resolve(__dirname, "123.mp3")
+		const filePath = '../audio/audio.mp3'
 		const file = new InputFile(filePath)
 
 		// Отправляем голосовое сообщение
