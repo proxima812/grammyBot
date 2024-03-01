@@ -1,4 +1,5 @@
 require("dotenv").config()
+const path = require("path")
 import { Bot, InlineKeyboard, InputFile, webhookCallback } from "grammy"
 const { createClient } = require("@supabase/supabase-js")
 
@@ -132,7 +133,7 @@ const mainMsg = `
 bot.command("suka", async ctx => {
 	try {
 		// Путь к файлу MP3 в корне проекта
-		const filePath = "/api/123.mp3" // Замените 'your-audio-file.mp3' на имя вашего файла
+		const filePath = path.resolve(__dirname, "/audio/123.mp3")
 		const file = new InputFile(filePath)
 
 		// Отправляем голосовое сообщение
@@ -151,8 +152,6 @@ bot.command("start", ctx => {
 		parse_mode: "Markdown",
 	})
 })
-
-
 
 // Обработчик для любого текстового сообщения
 bot.on("message:text", async ctx => {
@@ -223,8 +222,6 @@ bot.callbackQuery(/^accept_|reject_/, async ctx => {
 		await ctx.api.sendMessage(userId, "Ваш запрос был отклонен администратором.")
 	}
 })
-
-
 
 bot.callbackQuery("back_main", async ctx => {
 	await ctx.answerCallbackQuery()
