@@ -1,5 +1,5 @@
 require("dotenv").config()
-import { Bot, InlineKeyboard, webhookCallback } from "grammy"
+import { Bot, InlineKeyboard, InputFile, webhookCallback } from "grammy"
 const { createClient } = require("@supabase/supabase-js")
 
 const supabaseUrl = process.env.SUPABASE_URL
@@ -129,6 +129,20 @@ const mainMsg = `
 [Ссылки и контакты этих сообществ](https://t.me/all12_contacts)
 `
 
+bot.command("suka", async ctx => {
+	try {
+		// Путь к файлу MP3 в корне проекта
+		const filePath = "./123.mp3" // Замените 'your-audio-file.mp3' на имя вашего файла
+		const file = new InputFile(filePath)
+
+		// Отправляем голосовое сообщение
+		await ctx.replyWithVoice(file)
+	} catch (error) {
+		console.error(error)
+		await ctx.reply("Произошла ошибка при отправке файла.")
+	}
+})
+
 // /start
 bot.command("start", ctx => {
 	const keyboard = buildMainMenuKeyboard()
@@ -138,72 +152,7 @@ bot.command("start", ctx => {
 	})
 })
 
-// Функция для создания кнопок месяцев
-function createMonthButtons() {
-  const months = [
-    "yanvar", "fevral", "mart", "aprel", "may", "iyun",
-    "iyul", "avgust", "sentyabr", "oktyabr", "noyabr", "dekabr"
-  ];
-  let keyboard = new InlineKeyboard();
-  months.forEach(month => {
-    keyboard = keyboard.text(month, `month:${month}`).row();
-  });
-  return keyboard;
-}
 
-// Функция для создания кнопок дней в зависимости от месяца
-function createDayButtons(month) {
-  // Простая логика для определения количества дней в месяце
-  const daysInMonth = {
-    "yanvar": 31, "fevral": 28, "mart": 31, "aprel": 30, "may": 31, "iyun": 30,
-    "iyul": 31, "avgust": 31, "sentyabr": 30, "oktyabr": 31, "noyabr": 30, "dekabr": 31
-  };
-  let keyboard = new InlineKeyboard();
-  const days = daysInMonth[month];
-  for (let day = 1; day <= days; day++) {
-    keyboard = keyboard.text(day.toString(), `day:${month}:${day}`).row();
-  }
-  return keyboard;
-}
-
-// Команда старта
-bot.command('ejik', (ctx) => {
-  const keyboard = createMonthButtons();
-  ctx.reply('Выберите месяц:', { reply_markup: keyboard });
-});
-
-// Обработка выбора месяца
-bot.callbackQuery(/^month:(.+)$/, (ctx) => {
-  const month = ctx.match[1];
-  const keyboard = createDayButtons(month);
-  ctx.editMessageText(`Выберите день в ${month}:`, { reply_markup: keyboard });
-});
-
-// Обработка выбора дня
-bot.callbackQuery(/^day:(.+):(\d+)$/, async (ctx) => {
-  const [, month, day] = ctx.match;
-  // Загрузка данных из файла/хранилища
-  // Предполагается, что вы загрузите данные здесь
-  const data = {
-    "dekabr": {
-      "24": {
-        "title": "24 декабря",
-        "description": "Размышления АА на сегодня - 24 декабря",
-        "id": "359",
-        "content": "## «РАЗУМНАЯ И СЧАСТЛИВАЯ ЖИЗНЬ НА ПОЛЬЗУ ЛЮДЯМ»\n\n**Мы пришли к убеждению, что Он велит нам в мыслях быть с Ним рядом, в\nоблаках, но обеими ногами прочно стоять на земле. Там, внизу, все наши друзья,\nи там наша основная работа. Таковы реальности нашей жизни. Мы считаем, что\nинтенсивная духовная жизнь вполне совместима с разумной и счастливой жизнью, в\nкоторой мы стремимся приносить пользу другим.**\n\n**_Анонимные Алкоголики, с. 126  \nAlcoholics Anonymous, p. 130_**\n\nНикакие на свете молитвы и медитации не помогут мне до тех пор, пока они не\nбудут подтверждены моими действиями. Применяя принципы AA на практике, я\nощущаю заботу, которую Бог проявляет обо мне во всех сферах моей жизни. Бог\nвходит в мой мир тогда, когда я отхожу в сторону и позволяю Ему войти."
-      },
-    }
-  }; // Замените это на загрузку данных
-  const selectedData = data[month] && data[month][day];
-  if (!selectedData) {
-    await ctx.answerCallbackQuery('Данные за этот день отсутствуют.');
-    return;
-  }
-
-  const message = `${selectedData.title}\n\n${selectedData.description}\n\n${selectedData.content}`;
-  await ctx.answerCallbackQuery();
-  await ctx.editMessageText(message);
-});
 
 // Обработчик для любого текстового сообщения
 bot.on("message:text", async ctx => {
